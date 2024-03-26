@@ -252,3 +252,5 @@ export const videoConferencingController = (io: any) => {
     );
   });
 };
+
+// TODO: to switch back to web sockets for videoConf
