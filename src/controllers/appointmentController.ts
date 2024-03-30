@@ -718,9 +718,23 @@ export const cancelAppointment = asyncHandler(
       link: `/appointments?id=${appointment.appointmentId}`,
     });
 
+    const cancelledAppointment = await Appointment.findFirst({
+      where: { appointmentId: { equals: appointmentId } },
+      include: {
+        statuses: true,
+        doctor: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
     res.status(200).json({
       status: "success",
       message: "Appointment cancelled",
+      data: { cancelledAppointment: cancelledAppointment },
     });
   }
 );
