@@ -605,9 +605,18 @@ export const approveAppointment = asyncHandler(
       return next(new AppError("Can't approve  missed appointment", 400));
     }
 
-    await AppointmentStatus.create({
+    const approvalStatus = await AppointmentStatus.create({
       data: { appointmentId: appointmentId, status: "approved" },
+      select: {
+        appointmentStatusId: true,
+        appointmentId: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
+
+    appointment.statuses.push(approvalStatus);
 
     const doctorName = `Dr.${appointment.doctor.firstName} ${appointment.doctor.lastName}`;
     const message = new AppointmentMessage(
@@ -628,6 +637,7 @@ export const approveAppointment = asyncHandler(
     res.status(200).json({
       status: "success",
       message: "Appointment approved",
+      data: { approvedAppointment: appointment },
     });
   }
 );
@@ -663,7 +673,7 @@ export const cancelAppointment = asyncHandler(
     const statusObj = appointmentStatusObject(SavedStatuses);
 
     if (statusObj.cancelled) {
-      return next(new AppError("Appointment is already cancelled ", 400));
+      return next(new AppError("Appointment is already cancelled", 400));
     }
 
     await AppointmentStatus.deleteMany({
