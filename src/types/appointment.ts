@@ -11,6 +11,6 @@ export type TAppointmentStatus = {
   appointmentStatusId: string;
   appointmentId: String;
   status: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date | null;
 };

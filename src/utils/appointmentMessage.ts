@@ -42,6 +42,13 @@ export class AppointmentMessage {
         scheduled time. Thank you.`;
   }
 
+  appointmentDone() {
+    return `Appointment Done: ${this.name} - Date & Time: ${this.appointmentDate}
+        from ${this.appointmentStartTime}-${this.appointmentEndTime}.Your appointment 
+        has been successfully marked as done. We look forward to seeing in the next one. 
+        Thank you.`;
+  }
+
   appointmentCancelled() {
     return `Appointment Cancelled: ${this.name} - Date & Time: ${this.appointmentDate}
        from ${this.appointmentStartTime}-${this.appointmentEndTime}. We regret to inform 

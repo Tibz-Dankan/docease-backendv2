@@ -642,6 +642,81 @@ export const approveAppointment = asyncHandler(
   }
 );
 
+export const markAppointmentAsDone = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const appointmentId = req.params.appointmentId as string;
+
+    const appointment = await Appointment.findFirst({
+      where: { appointmentId: { equals: appointmentId } },
+      include: {
+        statuses: true,
+        doctor: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+
+    if (!appointment) {
+      return next(
+        new AppError("We couldn't find appointment of provided Id", 404)
+      );
+    }
+
+    const statusObj = appointmentStatusObject(appointment.statuses);
+
+    if (statusObj.done) {
+      return next(new AppError("Appointment is already marked as done", 400));
+    }
+
+    const hasAppointmentDatePassed =
+      new Date(Date.now()) > new Date(appointment.endsAt);
+
+    if (!hasAppointmentDatePassed) {
+      return next(
+        new AppError("Can't mark appointment whose time has not yet ended", 400)
+      );
+    }
+
+    const doneAppointmentStatus = await AppointmentStatus.create({
+      data: { appointmentId: appointmentId, status: "done" },
+      select: {
+        appointmentStatusId: true,
+        appointmentId: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    appointment.statuses.push(doneAppointmentStatus);
+
+    const doctorName = `Dr.${appointment.doctor.firstName} ${appointment.doctor.lastName}`;
+    const message = new AppointmentMessage(
+      doctorName,
+      appointment.startsAt,
+      appointment.endsAt
+    ).appointmentDone();
+
+    // Emit notification event
+    notification.emitNotificationEvent({
+      userId: appointment.patientId,
+      message: message,
+      title: TPushNotificationTitleEnum.APPOINTMENT,
+      body: "Doctor has approved your appointment",
+      link: `/appointments?id=${appointment.appointmentId}`,
+    });
+
+    res.status(200).json({
+      status: "success",
+      message: "Appointment approved",
+      data: { approvedAppointment: appointment },
+    });
+  }
+);
+
 export const cancelAppointment = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const appointmentId = req.params.appointmentId as string;

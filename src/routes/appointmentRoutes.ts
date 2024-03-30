@@ -8,6 +8,7 @@ import {
   getAppointment,
   getAppointmentsByDoctor,
   getAppointmentsByPatient,
+  markAppointmentAsDone,
   postAppointment,
   rescheduleAppointment,
   updateAppointment,
@@ -24,6 +25,7 @@ router.get("/get-by-patient", protect, getAppointmentsByPatient);
 router.delete("/delete/:appointmentId", protect, deleteAppointment);
 router.patch("/reschedule/:appointmentId", protect, rescheduleAppointment);
 router.patch("/approve/:appointmentId", protect, approveAppointment);
+router.patch("/done/:appointmentId", protect, markAppointmentAsDone);
 router.patch("/cancel/:appointmentId", protect, cancelAppointment);
 
 export { router as appointmentRoutes };
