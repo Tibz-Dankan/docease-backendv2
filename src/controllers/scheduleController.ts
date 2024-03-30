@@ -68,7 +68,7 @@ export const postSchedule = asyncHandler(
 
     res.status(201).json({
       status: "success",
-      message: "Schedule created",
+      message: "Schedule created successfully",
       data: { schedule: newSchedule },
     });
   }
@@ -158,7 +158,7 @@ export const deleteSchedule = asyncHandler(
 
     res.status(200).json({
       status: "success",
-      message: "Schedule deleted",
+      message: "Schedule deleted successfully",
     });
   }
 );
@@ -190,7 +190,7 @@ export const postScheduleTime = asyncHandler(
 
     res.status(201).json({
       status: "success",
-      message: "Schedule time created",
+      message: "Schedule time created successfully",
       data: { scheduleTime: scheduleTime },
     });
   }
@@ -224,7 +224,7 @@ export const updateScheduleTime = asyncHandler(
 
     res.status(200).json({
       status: "success",
-      message: "Schedule time update",
+      message: "Schedule time updated successfully",
       data: { scheduleTime: scheduleTime },
     });
   }
@@ -250,7 +250,7 @@ export const deleteScheduleTime = asyncHandler(
 
     res.status(200).json({
       status: "success",
-      message: "Schedule time deleted",
+      message: "Schedule time deleted successfully",
     });
   }
 );
