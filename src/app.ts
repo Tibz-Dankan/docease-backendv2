@@ -22,6 +22,7 @@ import { chatRoutes } from "./routes/chatRoutes";
 import { doctorsPatientsRoutes } from "./routes/doctorsPatientRoute";
 import { twoFARoutes } from "./routes/twoFARoutes";
 import { sessionDeviceRoutes } from "./routes/sessionDeviceRoutes";
+import { rateLimitController } from "./controllers/rateLimitController";
 
 dotenv.config();
 
@@ -57,6 +58,7 @@ app.use("/peerjs", peerServer);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger("dev"));
+app.use(rateLimitController);
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/appointments", appointmentRoutes);
