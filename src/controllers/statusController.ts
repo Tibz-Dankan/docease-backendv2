@@ -36,7 +36,7 @@ export const updateOnlineStatus = asyncHandler(
 
     status.emitStatusEvent({
       userId: userId,
-      createdAt: new Date(Date.now()).toISOString(),
+      updatedAt: new Date(Date.now()).toISOString(),
     });
 
     res.status(200).json({
@@ -67,11 +67,11 @@ export const getOnlineStatus = asyncHandler(
       );
     }, 30000);
 
-    status.listenStatusEvent().on("status", (statusObj: TStatus) => {
+    status.listenStatusEvent().on("status", (status: TStatus) => {
       res.write(
         `data: ${JSON.stringify({
-          userId: statusObj.userId,
-          createdAt: statusObj.createdAt,
+          userId: status.userId,
+          updatedAt: status.updatedAt,
         })}\n\n`
       );
     });
