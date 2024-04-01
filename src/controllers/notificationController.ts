@@ -101,9 +101,8 @@ export const getLiveNotifications = asyncHandler(
       );
     }, 30000);
 
-    notification
-      .listenNotificationEvent()
-      .on("notification", (notificationMsg: TNotification) => {
+    notification.registerNotificationListener(
+      (notificationMsg: TNotification) => {
         if (notificationMsg.userId !== userId) return;
 
         const { notificationId, createdAt } = saveNotification(notificationMsg);
@@ -117,7 +116,8 @@ export const getLiveNotifications = asyncHandler(
 
         //sending push notification
         sendPushNotification(notificationMsg);
-      });
+      }
+    );
 
     req.on("close", () => {
       clientResponseMap.delete(userId);

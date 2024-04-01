@@ -22,8 +22,10 @@ class Notification {
     this.notificationEventEmitter.emit("notification", message);
   }
 
-  listenNotificationEvent() {
-    return this.notificationEventEmitter;
+  registerNotificationListener(
+    callback: (notificationMsg: TNotification) => void
+  ) {
+    this.notificationEventEmitter.on("notification", callback);
   }
 
   listenConfNotificationEvent() {
