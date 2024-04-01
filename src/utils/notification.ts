@@ -40,8 +40,8 @@ class Notification {
     this.chatEventEmitter.emit("chat", message);
   }
 
-  listenChatEvent() {
-    return this.chatEventEmitter;
+  registerChatListener(callback: (message: any) => void) {
+    this.chatEventEmitter.on("chat", callback);
   }
 
   async sendPushNotification(notification: TNotification) {

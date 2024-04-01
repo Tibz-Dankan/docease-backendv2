@@ -95,7 +95,7 @@ export const getLiveChat = asyncHandler(
       );
     }, 30000);
 
-    notification.listenChatEvent().on("chat", (message: any) => {
+    notification.registerChatListener((message: any) => {
       const recipientId: string = message.recipientId;
       const res = chatResponseMap.get(recipientId);
       if (!res) return;
@@ -106,12 +106,6 @@ export const getLiveChat = asyncHandler(
           recipientId,
         })}\n\n`
       );
-      // res.write(
-      //   `data: ${JSON.stringify({
-      //     message: "chat",
-      //     userId: message.recipientId,
-      //   })}\n\n`
-      // );
     });
 
     req.on("close", () => {
