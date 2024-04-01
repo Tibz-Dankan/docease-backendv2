@@ -45,7 +45,6 @@ export const authenticate = async (
   user.password = undefined;
   user.passwordResetToken = undefined;
   user.passwordResetExpiresAt = undefined;
-  user.createdAt = undefined;
   user.updatedAt = undefined;
 
   await saveAccessToken(user.userId, accessToken);
