@@ -158,7 +158,7 @@ export const signIn = asyncHandler(
     }
     const user = await User.findFirst({
       where: { email: { equals: email } },
-      include: { twoFA: true },
+      include: { twoFA: true, onlineStatus: { select: { updatedAt: true } } },
     });
 
     if (!user || !(await compare(password, user.password))) {
@@ -185,7 +185,7 @@ export const signInDoctor = asyncHandler(
     }
     const user = await User.findFirst({
       where: { email: { equals: email } },
-      include: { twoFA: true },
+      include: { twoFA: true, onlineStatus: { select: { updatedAt: true } } },
     });
 
     if (user?.role !== "doctor") {
@@ -221,7 +221,7 @@ export const signInPatient = asyncHandler(
     }
     const user = await User.findFirst({
       where: { email: { equals: email } },
-      include: { twoFA: true },
+      include: { twoFA: true, onlineStatus: { select: { updatedAt: true } } },
     });
 
     if (user?.role !== "patient") {
