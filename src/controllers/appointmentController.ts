@@ -248,10 +248,8 @@ export const getAppointment = asyncHandler(
             imageUrl: true,
             gender: true,
             role: true,
-            accessTokens: {
-              select: { createdAt: true },
-              orderBy: { createdAt: "desc" },
-              take: 1,
+            onlineStatus: {
+              select: { updatedAt: true },
             },
           },
         },
@@ -288,10 +286,8 @@ export const getAppointmentsByDoctor = asyncHandler(
             imageUrl: true,
             gender: true,
             role: true,
-            accessTokens: {
-              select: { createdAt: true },
-              orderBy: { createdAt: "desc" },
-              take: 1,
+            onlineStatus: {
+              select: { updatedAt: true },
             },
           },
         },
@@ -328,10 +324,8 @@ export const getAppointmentsByPatient = asyncHandler(
             imageUrl: true,
             gender: true,
             role: true,
-            accessTokens: {
-              select: { createdAt: true },
-              orderBy: { createdAt: "desc" },
-              take: 1,
+            onlineStatus: {
+              select: { updatedAt: true },
             },
           },
         },
@@ -368,10 +362,8 @@ export const getAllAppointments = asyncHandler(
             imageUrl: true,
             gender: true,
             role: true,
-            accessTokens: {
-              select: { createdAt: true },
-              orderBy: { createdAt: "desc" },
-              take: 1,
+            onlineStatus: {
+              select: { updatedAt: true },
             },
           },
         },

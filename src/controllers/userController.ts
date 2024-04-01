@@ -581,10 +581,8 @@ export const getUserByRole = asyncHandler(
         imageUrl: true,
         createdAt: true,
         updatedAt: true,
-        accessTokens: {
-          select: { createdAt: true },
-          orderBy: { createdAt: "desc" },
-          take: 1,
+        onlineStatus: {
+          select: { updatedAt: true },
         },
       },
     });
@@ -662,10 +660,8 @@ export const getDoctorStatistics = asyncHandler(
                 imageUrl: true,
                 createdAt: true,
                 updatedAt: true,
-                accessTokens: {
-                  select: { createdAt: true },
-                  orderBy: { createdAt: "desc" },
-                  take: 1,
+                onlineStatus: {
+                  select: { updatedAt: true },
                 },
               },
             },
@@ -691,10 +687,8 @@ export const getDoctorStatistics = asyncHandler(
                 gender: true,
                 role: true,
                 imageUrl: true,
-                accessTokens: {
-                  select: { createdAt: true },
-                  orderBy: { createdAt: "desc" },
-                  take: 1,
+                onlineStatus: {
+                  select: { updatedAt: true },
                 },
               },
             },
@@ -807,10 +801,8 @@ export const getPatientStatistics = asyncHandler(
                 gender: true,
                 role: true,
                 imageUrl: true,
-                accessTokens: {
-                  select: { createdAt: true },
-                  orderBy: { createdAt: "desc" },
-                  take: 1,
+                onlineStatus: {
+                  select: { updatedAt: true },
                 },
               },
             },
