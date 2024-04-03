@@ -213,6 +213,7 @@ export const getChatRecipients = asyncHandler(async (req, res, next) => {
 
   if (!userId) return next(new AppError("No userId is provided", 400));
 
+  // TODO: to add functionality of fetching messages based on the created at date
   const chats = (await Chat.findMany({
     where: {
       OR: [
