@@ -257,6 +257,32 @@ export const getChatRecipients = asyncHandler(async (req, res, next) => {
   });
 });
 
+export const markMessageAsRead = asyncHandler(async (req, res, next) => {
+  const userId = req.body.userId as string;
+  const createdAt = req.body.createdAt as string; //last message createdAt date
+
+  if (!userId) return next(new AppError("Please provide userId", 400));
+  if (!createdAt) {
+    return next(new AppError("Please provide message createdAt date", 400));
+  }
+
+  await Chat.updateMany({
+    data: { isRead: true },
+    where: {
+      AND: [
+        { isRead: { equals: false } },
+        { recipientId: { equals: userId } },
+        { createdAt: { lte: new Date(createdAt).toISOString() } },
+      ],
+    },
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: "Message marked as read successfully",
+  });
+});
+
 export const getChatMessagesByChatRoom = asyncHandler(
   async (req, res, next) => {
     const chatRoomId = req.query.chatRoomId as string;
