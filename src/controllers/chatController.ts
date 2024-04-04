@@ -221,6 +221,7 @@ export const getChatRecipients = asyncHandler(async (req, res, next) => {
         { recipientId: { equals: userId } },
       ],
     },
+    orderBy: { createdAt: "asc" },
     include: {
       sender: {
         select: {
