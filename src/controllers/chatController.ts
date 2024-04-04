@@ -208,6 +208,7 @@ const organizeChatRecipients = (
   return recipients;
 };
 
+// TODO: to revise the way of fetching chat recipient
 export const getChatRecipients = asyncHandler(async (req, res, next) => {
   const userId = req.query.userId as string;
 
