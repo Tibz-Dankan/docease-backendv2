@@ -9,6 +9,7 @@ import { TPushNotificationTitleEnum } from "../types/notification";
 
 const prisma = new PrismaClient();
 const Chat = prisma.chat;
+const User = prisma.user;
 
 export const postChat = asyncHandler(async (req, res, next) => {
   const chatMessage = await Chat.create({
@@ -257,6 +258,32 @@ export const getChatRecipients = asyncHandler(async (req, res, next) => {
     status: "success",
     message: "Recipients fetched successfully",
     data: { recipients: recipients },
+  });
+});
+
+export const getRecipients = asyncHandler(async (req, res, next) => {
+  const userId = req.query.userId as string;
+
+  if (!userId) return next(new AppError("No userId is provided", 400));
+
+  const recipients = await User.findFirst({
+    where: {
+      userId: userId,
+    },
+    include: {
+      recipient: {
+        where: { recipientId: userId },
+      },
+      sender: {
+        where: { senderId: userId },
+      },
+    },
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: "Recipients fetched successfully",
+    data: { recipients: "" },
   });
 });
 

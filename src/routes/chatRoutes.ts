@@ -8,12 +8,14 @@ import {
   getLiveChat,
   markMessageAsRead,
   getMessages,
+  getRecipients,
 } from "../controllers/chatController";
 
 const router = express.Router();
 
 // router.get("/get-chat-recipients/:userId", protect, getChatRecipients);
 router.get("/get-chat-recipients", protect, getChatRecipients);
+router.get("/get-recipients", protect, getRecipients);
 router.post("/post", protect, postChat);
 router.get("/get-chat-messages", protect, getChatMessagesByChatRoom);
 router.get("/get-messages", protect, getMessages);
