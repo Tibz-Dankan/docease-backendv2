@@ -260,6 +260,34 @@ export const getChatRecipients = asyncHandler(async (req, res, next) => {
   });
 });
 
+export const getMessages = asyncHandler(async (req, res, next) => {
+  const userId = req.query.userId as string;
+  // const createdAt = req.query.createdAt as string
+  const cursorId = req.query.cursorId as string;
+
+  if (!userId) return next(new AppError("Please provide UserId", 400));
+  if (!cursorId) return next(new AppError("Please provide  cursorId", 400));
+
+  const messages = (await Chat.findMany({
+    where: {
+      OR: [
+        { senderId: { equals: userId } },
+        { recipientId: { equals: userId } },
+      ],
+    },
+    cursor: { messageId: cursorId },
+    orderBy: { createdAt: "asc" },
+    skip: 1,
+    take: -20,
+  })) as TChatMessage[];
+
+  res.status(200).json({
+    status: "success",
+    message: "Messages fetched successfully",
+    data: { messages: messages },
+  });
+});
+
 export const markMessageAsRead = asyncHandler(async (req, res, next) => {
   const userId = req.body.userId as string;
   const createdAt = req.body.createdAt as string; //last message createdAt date
