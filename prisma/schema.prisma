@@ -47,6 +47,8 @@ model User {
   attendee               VideoConference[]   @relation("attendee")
   sender                 Chat[]              @relation("sender")
   recipient              Chat[]              @relation("recipient")
+  senderChatMate         ChatMate[]          @relation("senderChatMate")
+  recipientChatMate      ChatMate[]          @relation("recipientChatMate")
   doctorsPatientDoctor   DoctorsPatient[]    @relation("doctor")
   doctorsPatientPatient  DoctorsPatient[]    @relation("patient")
   twoFA                  TwoFA?
@@ -276,6 +278,21 @@ model Chat {
   @@index([recipientId])
   @@index([chatRoomId])
   @@map("_chats")
+}
+
+model ChatMate {
+  chatMateId          String    @id @default(uuid())
+  sender              User      @relation("senderChatMate", fields: [chatMateSenderId], references: [userId])
+  chatMateSenderId    String
+  recipient           User      @relation("recipientChatMate", fields: [chatMateRecipientId], references: [userId])
+  chatMateRecipientId String
+  createdAt           DateTime
+  updatedAt           DateTime? @updatedAt
+
+  @@index([chatMateId])
+  @@index([chatMateSenderId])
+  @@index([chatMateRecipientId])
+  @@map("_chat_mates")
 }
 
 model Notification {

@@ -9,7 +9,58 @@ import { TPushNotificationTitleEnum } from "../types/notification";
 
 const prisma = new PrismaClient();
 const Chat = prisma.chat;
+const ChatMate = prisma.chatMate;
 const User = prisma.user;
+
+const createOrUpdateChatMate = async (
+  senderId: string,
+  recipientId: string
+) => {
+  const chatMate = await ChatMate.findFirst({
+    where: {
+      AND: [
+        {
+          OR: [
+            { chatMateSenderId: senderId },
+            { chatMateRecipientId: recipientId },
+          ],
+        },
+        {
+          OR: [
+            { chatMateSenderId: recipientId },
+            { chatMateRecipientId: senderId },
+          ],
+        },
+      ],
+    },
+  });
+
+  if (!chatMate) {
+    await ChatMate.create({
+      data: {
+        chatMateSenderId: senderId,
+        chatMateRecipientId: recipientId,
+        createdAt: new Date(Date.now()).toISOString(),
+      },
+    });
+
+    return;
+  }
+
+  const isChatMateSender = chatMate?.chatMateSenderId === senderId;
+  const isChatMateRecipient = chatMate?.chatMateRecipientId === recipientId;
+
+  const chatMateSenderId = isChatMateSender ? senderId : recipientId;
+  const chatMateRecipientId = isChatMateRecipient ? recipientId : senderId;
+
+  await ChatMate.update({
+    where: { chatMateId: chatMate.chatMateId },
+    data: {
+      chatMateSenderId: chatMateSenderId,
+      chatMateRecipientId: chatMateRecipientId,
+    },
+  });
+};
 
 export const postChat = asyncHandler(async (req, res, next) => {
   const chatMessage = await Chat.create({
@@ -65,6 +116,7 @@ export const postChat = asyncHandler(async (req, res, next) => {
   });
 
   // await createDoctorsPatient(doctorId, patientId);
+  await createOrUpdateChatMate(req.body.senderId, req.body.recipientId);
 
   res.status(200).json({
     status: "success",
