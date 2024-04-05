@@ -4,7 +4,12 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { PrismaClient } from "@prisma/client";
 import { Socket } from "socket.io";
 import { notification } from "../utils/notification";
-import { TChatExtended, TChatMessage, TChatRecipient } from "../types/chat";
+import {
+  TChatExtended,
+  TChatMessage,
+  TChatRecipient,
+  TRecipient,
+} from "../types/chat";
 import { TPushNotificationTitleEnum } from "../types/notification";
 
 const prisma = new PrismaClient();
@@ -316,29 +321,90 @@ export const getChatRecipients = asyncHandler(async (req, res, next) => {
   });
 });
 
+const combineAndSortMessages = (
+  recipient: TChatMessage[],
+  sender: TChatMessage[]
+): TChatMessage[] => {
+  const combinedMessages: TChatMessage[] = [...recipient, ...sender];
+
+  combinedMessages.sort((a, b) => {
+    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+  });
+
+  return combinedMessages;
+};
+
+const organizeRecipients = (
+  unSortedRecipients: TRecipient[]
+): TChatRecipient[] => {
+  const recipients: TChatRecipient[] = [];
+
+  unSortedRecipients.map((recipient) => {
+    const organizedMessages = combineAndSortMessages(
+      recipient.recipient.recipient,
+      recipient.recipient.sender
+    );
+
+    const recipientObject: TChatRecipient = {
+      userId: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      gender: "male",
+      role: "patient",
+      imageUrl: "",
+      messages: [],
+    };
+
+    (recipientObject.userId = recipient.recipient.userId),
+      (recipientObject.firstName = recipient.recipient.firstName),
+      (recipientObject.lastName = recipient.recipient.lastName),
+      (recipientObject.email = recipient.recipient.email),
+      (recipientObject.gender = recipient.recipient.gender),
+      (recipientObject.role = recipient.recipient.role),
+      (recipientObject.imageUrl = recipient.recipient.imageUrl),
+      (recipientObject.messages = organizedMessages);
+
+    recipients.push(recipientObject);
+  });
+
+  return recipients;
+};
+
 export const getRecipients = asyncHandler(async (req, res, next) => {
   const userId = req.query.userId as string;
 
   if (!userId) return next(new AppError("No userId is provided", 400));
 
-  const recipients = await User.findFirst({
+  const recipients = (await ChatMate.findMany({
     where: {
-      userId: userId,
+      OR: [{ chatMateSenderId: userId }, { chatMateRecipientId: userId }],
     },
-    include: {
+    orderBy: { updatedAt: "desc" },
+    take: 5,
+    select: {
       recipient: {
-        where: { recipientId: userId },
-      },
-      sender: {
-        where: { senderId: userId },
+        select: {
+          userId: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          role: true,
+          gender: true,
+          imageUrl: true,
+          recipient: { orderBy: { createdAt: "asc" }, take: -10 },
+          sender: { orderBy: { createdAt: "asc" }, take: -10 },
+        },
       },
     },
-  });
+  })) as TRecipient[];
+
+  const sortedRecipients = organizeRecipients(recipients);
 
   res.status(200).json({
     status: "success",
     message: "Recipients fetched successfully",
-    data: { recipients: "" },
+    data: { recipients: sortedRecipients },
   });
 });
 

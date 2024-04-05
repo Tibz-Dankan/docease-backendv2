@@ -14,7 +14,8 @@ import {
 const router = express.Router();
 
 // router.get("/get-chat-recipients/:userId", protect, getChatRecipients);
-router.get("/get-chat-recipients", protect, getChatRecipients);
+// router.get("/get-chat-recipients", protect, getChatRecipients);
+router.get("/get-chat-recipients", protect, getRecipients);
 router.get("/get-recipients", protect, getRecipients);
 router.post("/post", protect, postChat);
 router.get("/get-chat-messages", protect, getChatMessagesByChatRoom);

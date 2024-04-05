@@ -26,3 +26,12 @@ export type TChatExtended = TChatMessage & {
 export type TChatRecipient = TUser & {
   messages: TChatMessage[];
 };
+
+export type TChatRecipientExtended = TUser & {
+  sender: TChatMessage[];
+  recipient: TChatMessage[];
+};
+
+export type TRecipient = {
+  recipient: TChatRecipientExtended;
+};
