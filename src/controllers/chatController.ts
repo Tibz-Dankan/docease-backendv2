@@ -16,26 +16,29 @@ const createOrUpdateChatMate = async (
   senderId: string,
   recipientId: string
 ) => {
-  const chatMate = await ChatMate.findFirst({
+  let chatMate: any = {};
+
+  chatMate = await ChatMate.findFirst({
     where: {
       AND: [
-        {
-          OR: [
-            { chatMateSenderId: senderId },
-            { chatMateRecipientId: recipientId },
-          ],
-        },
-        {
-          OR: [
-            { chatMateSenderId: recipientId },
-            { chatMateRecipientId: senderId },
-          ],
-        },
+        { chatMateSenderId: senderId },
+        { chatMateRecipientId: recipientId },
       ],
     },
   });
 
-  if (!chatMate) {
+  if (!chatMate?.chatMateId) {
+    chatMate = await ChatMate.findFirst({
+      where: {
+        AND: [
+          { chatMateSenderId: recipientId },
+          { chatMateRecipientId: senderId },
+        ],
+      },
+    });
+  }
+
+  if (!chatMate?.chatMateId) {
     await ChatMate.create({
       data: {
         chatMateSenderId: senderId,
