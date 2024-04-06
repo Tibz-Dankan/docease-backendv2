@@ -408,20 +408,16 @@ export const getRecipients = asyncHandler(async (req, res, next) => {
   });
 });
 
-export const getMessages = asyncHandler(async (req, res, next) => {
-  const userId = req.query.userId as string;
-  // const createdAt = req.query.createdAt as string
+export const getMessagesByChatRoom = asyncHandler(async (req, res, next) => {
   const cursorId = req.query.cursorId as string;
+  const chatRoomId = req.query.chatRoomId as string;
 
-  if (!userId) return next(new AppError("Please provide UserId", 400));
+  if (!chatRoomId) return next(new AppError("Please provide chatRoomId", 400));
   if (!cursorId) return next(new AppError("Please provide  cursorId", 400));
 
   const messages = (await Chat.findMany({
     where: {
-      OR: [
-        { senderId: { equals: userId } },
-        { recipientId: { equals: userId } },
-      ],
+      chatRoomId: { equals: chatRoomId },
     },
     cursor: { messageId: cursorId },
     orderBy: { createdAt: "asc" },

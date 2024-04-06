@@ -7,7 +7,7 @@ import {
   postChat,
   getLiveChat,
   markMessageAsRead,
-  getMessages,
+  getMessagesByChatRoom,
   getRecipients,
 } from "../controllers/chatController";
 
@@ -19,7 +19,7 @@ router.get("/get-chat-recipients", protect, getRecipients);
 router.get("/get-recipients", protect, getRecipients);
 router.post("/post", protect, postChat);
 router.get("/get-chat-messages", protect, getChatMessagesByChatRoom);
-router.get("/get-messages", protect, getMessages);
+router.get("/get-messages", protect, getMessagesByChatRoom);
 router.patch("/mark-message-as-read", protect, markMessageAsRead);
 router.get("/get-live-chat", protect, getLiveChat);
 
