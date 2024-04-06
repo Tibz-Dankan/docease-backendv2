@@ -33,5 +33,6 @@ export type TChatRecipientExtended = TUser & {
 };
 
 export type TRecipient = {
-  recipient: TChatRecipientExtended;
+  recipient?: TChatRecipientExtended;
+  sender?: TChatRecipientExtended;
 };

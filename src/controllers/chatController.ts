@@ -341,16 +341,14 @@ const combineAndSortMessages = (
 
 // TO revise the message sorting algorithm
 const organizeRecipients = (
-  unSortedRecipients: TRecipient[]
+  unSortedRecipients: TRecipient[],
+  currentUserId: string
 ): TChatRecipient[] => {
   const recipients: TChatRecipient[] = [];
   console.log("unSortedRecipients:::", unSortedRecipients);
 
   unSortedRecipients.map((recipient) => {
-    const organizedMessages = combineAndSortMessages(
-      recipient.recipient.recipient,
-      recipient.recipient.sender
-    );
+    let organizedMessages: TChatMessage[] = [];
 
     const recipientObject: TChatRecipient = {
       userId: "",
@@ -363,14 +361,39 @@ const organizeRecipients = (
       messages: [],
     };
 
-    (recipientObject.userId = recipient.recipient.userId),
-      (recipientObject.firstName = recipient.recipient.firstName),
-      (recipientObject.lastName = recipient.recipient.lastName),
-      (recipientObject.email = recipient.recipient.email),
-      (recipientObject.gender = recipient.recipient.gender),
-      (recipientObject.role = recipient.recipient.role),
-      (recipientObject.imageUrl = recipient.recipient.imageUrl),
-      (recipientObject.messages = organizedMessages);
+    if (recipient.recipient) {
+      if (recipient.recipient.userId === currentUserId) return;
+
+      organizedMessages = combineAndSortMessages(
+        recipient.recipient.recipient,
+        recipient.recipient.sender
+      );
+      (recipientObject.userId = recipient.recipient.userId),
+        (recipientObject.firstName = recipient.recipient.firstName),
+        (recipientObject.lastName = recipient.recipient.lastName),
+        (recipientObject.email = recipient.recipient.email),
+        (recipientObject.gender = recipient.recipient.gender),
+        (recipientObject.role = recipient.recipient.role),
+        (recipientObject.imageUrl = recipient.recipient.imageUrl),
+        (recipientObject.messages = organizedMessages);
+    }
+
+    if (recipient.sender) {
+      if (recipient.sender.userId === currentUserId) return;
+
+      organizedMessages = combineAndSortMessages(
+        recipient.sender.recipient,
+        recipient.sender.sender
+      );
+      (recipientObject.userId = recipient.sender.userId),
+        (recipientObject.firstName = recipient.sender.firstName),
+        (recipientObject.lastName = recipient.sender.lastName),
+        (recipientObject.email = recipient.sender.email),
+        (recipientObject.gender = recipient.sender.gender),
+        (recipientObject.role = recipient.sender.role),
+        (recipientObject.imageUrl = recipient.sender.imageUrl),
+        (recipientObject.messages = organizedMessages);
+    }
 
     recipients.push(recipientObject);
   });
@@ -383,7 +406,10 @@ export const getRecipients = asyncHandler(async (req, res, next) => {
 
   if (!userId) return next(new AppError("No userId is provided", 400));
 
-  const recipients = (await ChatMate.findMany({
+  let recipients: TRecipient[] = [];
+
+  // const recipients = (await ChatMate.findMany({
+  recipients = (await ChatMate.findMany({
     where: {
       OR: [{ chatMateSenderId: userId }, { chatMateRecipientId: userId }],
     },
@@ -406,7 +432,34 @@ export const getRecipients = asyncHandler(async (req, res, next) => {
     },
   })) as TRecipient[];
 
-  const sortedRecipients = organizeRecipients(recipients);
+  if (recipients[0].recipient?.userId === userId) {
+    recipients = (await ChatMate.findMany({
+      where: {
+        OR: [{ chatMateSenderId: userId }, { chatMateRecipientId: userId }],
+      },
+      orderBy: { updatedAt: "desc" },
+      take: 5,
+      select: {
+        sender: {
+          select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            role: true,
+            gender: true,
+            imageUrl: true,
+            recipient: { orderBy: { createdAt: "asc" }, take: -10 },
+            sender: { orderBy: { createdAt: "asc" }, take: -10 },
+          },
+        },
+      },
+    })) as TRecipient[];
+
+    console.log("recipients:::from db", recipients);
+  }
+
+  const sortedRecipients = organizeRecipients(recipients, userId);
 
   res.status(200).json({
     status: "success",
