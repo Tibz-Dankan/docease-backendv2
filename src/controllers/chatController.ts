@@ -71,6 +71,10 @@ const createOrUpdateChatMate = async (
 };
 
 export const postChat = asyncHandler(async (req, res, next) => {
+  if (req.body.senderId === req.body.recipientId) {
+    return next(new AppError("You can't message your self", 400));
+  }
+
   const chatMessage = await Chat.create({
     data: req.body,
     select: {
@@ -157,6 +161,7 @@ export const getLiveChat = asyncHandler(
     }, 30000);
 
     notification.registerChatListener((message: any) => {
+      console.log("sending the message to respective client...");
       const recipientId: string = message.recipientId;
       const res = chatResponseMap.get(recipientId);
       if (!res) return;
@@ -334,10 +339,12 @@ const combineAndSortMessages = (
   return combinedMessages;
 };
 
+// TO revise the message sorting algorithm
 const organizeRecipients = (
   unSortedRecipients: TRecipient[]
 ): TChatRecipient[] => {
   const recipients: TChatRecipient[] = [];
+  console.log("unSortedRecipients:::", unSortedRecipients);
 
   unSortedRecipients.map((recipient) => {
     const organizedMessages = combineAndSortMessages(
