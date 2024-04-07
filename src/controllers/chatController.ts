@@ -339,13 +339,11 @@ const combineAndSortMessages = (
   return combinedMessages;
 };
 
-// TO revise the message sorting algorithm
 const organizeRecipients = (
   unSortedRecipients: TRecipient[],
   currentUserId: string
 ): TChatRecipient[] => {
   const recipients: TChatRecipient[] = [];
-  console.log("unSortedRecipients:::", unSortedRecipients);
 
   unSortedRecipients.map((recipient) => {
     let organizedMessages: TChatMessage[] = [];
@@ -408,7 +406,6 @@ export const getRecipients = asyncHandler(async (req, res, next) => {
 
   let recipients: TRecipient[] = [];
 
-  // const recipients = (await ChatMate.findMany({
   recipients = (await ChatMate.findMany({
     where: {
       OR: [{ chatMateSenderId: userId }, { chatMateRecipientId: userId }],
@@ -425,8 +422,16 @@ export const getRecipients = asyncHandler(async (req, res, next) => {
           role: true,
           gender: true,
           imageUrl: true,
-          recipient: { orderBy: { createdAt: "asc" }, take: -10 },
-          sender: { orderBy: { createdAt: "asc" }, take: -10 },
+          recipient: {
+            where: { OR: [{ recipientId: userId }, { senderId: userId }] },
+            orderBy: { createdAt: "asc" },
+            take: -10,
+          },
+          sender: {
+            where: { OR: [{ recipientId: userId }, { senderId: userId }] },
+            orderBy: { createdAt: "asc" },
+            take: -10,
+          },
         },
       },
     },
@@ -449,14 +454,20 @@ export const getRecipients = asyncHandler(async (req, res, next) => {
             role: true,
             gender: true,
             imageUrl: true,
-            recipient: { orderBy: { createdAt: "asc" }, take: -10 },
-            sender: { orderBy: { createdAt: "asc" }, take: -10 },
+            recipient: {
+              where: { OR: [{ recipientId: userId }, { senderId: userId }] },
+              orderBy: { createdAt: "asc" },
+              take: -10,
+            },
+            sender: {
+              where: { OR: [{ recipientId: userId }, { senderId: userId }] },
+              orderBy: { createdAt: "asc" },
+              take: -10,
+            },
           },
         },
       },
     })) as TRecipient[];
-
-    console.log("recipients:::from db", recipients);
   }
 
   const sortedRecipients = organizeRecipients(recipients, userId);
