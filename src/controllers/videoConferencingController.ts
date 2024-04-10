@@ -15,14 +15,18 @@ export const getVideoConference = asyncHandler(
     const attendeeId = req.query.attendeeId as string;
 
     if (!hostId || !attendeeId) {
-      return next(new AppError("Please provide both hostId and attendId", 400));
+      return next(
+        new AppError("Please provide both hostId and attendeeId", 400)
+      );
     }
 
-    const conference = await VideoConference.findFirst({
+    const conferences = await VideoConference.findMany({
       where: {
         hostId: { equals: hostId },
         attendeeId: { equals: attendeeId },
       },
+      take: 1,
+      orderBy: { createdAt: "desc" },
       include: {
         Host: {
           select: {
@@ -47,12 +51,12 @@ export const getVideoConference = asyncHandler(
       },
     });
 
-    if (conference) {
-      const isItLessThan30MinFromConfCreation: boolean =
-        new Date(conference!.createdAt) < new Date(Date.now() + 1000 * 60 * 30);
+    const conference = conferences[0];
+    const isItLessThanOneDayFromConfCreation: boolean =
+      new Date(conferences[0]!.createdAt) <
+      new Date(Date.now() + 1000 * 60 * 30);
 
-      if (!isItLessThan30MinFromConfCreation) return;
-
+    if (isItLessThanOneDayFromConfCreation) {
       const userId = res.locals.user.userId;
       const sendToUserId =
         userId === conference.hostId
@@ -187,34 +191,60 @@ export const getVideoConferenceById = asyncHandler(
 export const joinVideoConference = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const videoConferenceId = req.body.videoConferenceId as string;
-    const peerId = req.body.peerId as string;
 
-    if (!videoConferenceId || !peerId) {
-      return next(new AppError("Missing peerId or conferenceId", 400));
+    if (!videoConferenceId) {
+      return next(new AppError("Please provide conferenceId", 400));
     }
-    const conference = await VideoConference.findFirst({
-      where: { videoConferenceId: videoConferenceId },
+    const conferences = await VideoConference.findMany({
+      where: {
+        videoConferenceId: { equals: videoConferenceId },
+      },
+      take: 1,
+      orderBy: { createdAt: "desc" },
+      include: {
+        Host: {
+          select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+            gender: true,
+            role: true,
+            imageUrl: true,
+          },
+        },
+        Attendee: {
+          select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+            gender: true,
+            role: true,
+            imageUrl: true,
+          },
+        },
+      },
     });
 
-    if (!conference) {
+    if (!conferences) {
       return next(new AppError("No conference of provided Id was found", 404));
     }
 
-    const userId = res.locals.user.userId;
+    // const userId = res.locals.user.userId;
 
-    const sendToUserId =
-      userId === conference.hostId ? conference.attendeeId : conference.hostId;
+    // const sendToUserId =
+    //   userId === conference.hostId ? conference.attendeeId : conference.hostId;
 
-    notification.emitConfNotificationEvent({
-      userId: sendToUserId,
-      message: "confconnected",
-      videoConferenceId: videoConferenceId,
-      peerId: peerId,
-    });
+    // notification.emitConfNotificationEvent({
+    //   userId: sendToUserId,
+    //   message: "confconnected",
+    //   videoConferenceId: videoConferenceId,
+    //   peerId: peerId,
+    // });
 
     res.status(200).json({
       status: "success",
-      message: "Joined  conference  successfully",
+      message: "Joined conference successfully",
+      data: { conference: conferences[0] },
     });
   }
 );
@@ -232,10 +262,10 @@ export const videoConferencingController = (io: any) => {
         setTimeout(() => {
           socket.to(roomId).emit("user-connected", peerId);
 
-          notification.emitConfNotificationEvent({
-            userId: userId,
-            videoConferenceId: roomId,
-          });
+          // notification.emitConfNotificationEvent({
+          //   userId: userId,
+          //   videoConferenceId: roomId,
+          // });
         }, 1000);
 
         socket.on("message", (message: string) => {
