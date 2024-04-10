@@ -4,6 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { PrismaClient } from "@prisma/client";
 import { notification } from "../utils/notification";
 import { TVideoConference } from "../types/conferencing";
+import { TUser } from "../types/user";
 
 const prisma = new PrismaClient();
 const VideoConference = prisma.videoConference;
@@ -225,20 +226,12 @@ export const videoConferencingController = (io: any) => {
 
     socket.on(
       "join-room",
-      // (roomId: string, userPeerId: string, userId: string) => {
-      (conference: TVideoConference) => {
-        const roomId = conference.videoConferenceId;
-        const userId = conference.userId;
-        const userPeerId = conference.userPeerId;
-        const hostId = conference.hostId;
-
-        console.log("conference: ", conference);
+      (roomId: string, peerId: string, peerUser: TUser) => {
+        const userId = peerUser.userId;
 
         setTimeout(() => {
-          // socket.to(roomId).broadcast.emit("user-connected", userPeerId);
-          socket.to(roomId).emit("user-connected", userPeerId);
+          socket.to(roomId).emit("user-connected", peerId);
 
-          if (userId !== hostId) return;
           notification.emitConfNotificationEvent({
             userId: userId,
             videoConferenceId: roomId,

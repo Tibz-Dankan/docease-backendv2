@@ -50,6 +50,7 @@ const io = new Server(server, {
 // const peerServer = ExpressPeerServer(server, {
 //   path: "/peerjs",
 // });
+
 const peerServer = ExpressPeerServer(server);
 
 // app.use("/api/v1/conferencing", peerServer);
