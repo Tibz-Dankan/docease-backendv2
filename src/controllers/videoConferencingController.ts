@@ -58,14 +58,31 @@ export const getVideoConference = asyncHandler(
 
     if (isItLessThanOneDayFromConfCreation) {
       const userId = res.locals.user.userId;
+
       const sendToUserId =
         userId === conference.hostId
           ? conference.attendeeId
           : conference.hostId;
 
+      const title =
+        userId === conference.hostId
+          ? conference.Attendee.role === "doctor"
+            ? "Dr."
+            : "Pt."
+          : conference.Host.role === "doctor"
+          ? "Dr."
+          : "Pt.";
+
+      const name =
+        userId === conference.hostId
+          ? `${title} ${conference.Attendee.firstName} ${conference.Attendee.lastName}`
+          : `${title}  ${conference.Host.firstName} ${conference.Host.lastName}`;
+
+      const message = `Please Join a Call with ${name}`;
+
       notification.emitConfNotificationEvent({
         userId: sendToUserId,
-        message: "",
+        message: message,
         videoConferenceId: conference.videoConferenceId,
       });
 
@@ -116,9 +133,24 @@ export const getVideoConference = asyncHandler(
         ? newConference.attendeeId
         : newConference.hostId;
 
+    const title =
+      userId === newConference.hostId
+        ? newConference.Attendee.role === "doctor"
+          ? "Dr."
+          : "Pt."
+        : newConference.Host.role === "doctor"
+        ? "Dr."
+        : "Pt.";
+
+    const name =
+      userId === newConference.hostId
+        ? `${title} ${newConference.Attendee.firstName} ${newConference.Attendee.lastName}`
+        : `${title} ${newConference.Host.firstName} ${newConference.Host.lastName}`;
+
+    const message = `Join Video Call with ${name}`;
     notification.emitConfNotificationEvent({
       userId: sendToUserId,
-      message: "",
+      message: message,
       videoConferenceId: newConference.videoConferenceId,
     });
 

@@ -119,6 +119,24 @@ export const getLiveNotifications = asyncHandler(
       }
     );
 
+    // Listen for conference notification
+    notification
+      .listenConfNotificationEvent()
+      .on("conferenceNotification", (notificationMsg: TConfNotification) => {
+        console.log("Executing in the conf notification listener...");
+        console.log("Executing in the conf notification listener...");
+        console.log("Executing in the conf notification listener...");
+
+        if (notificationMsg.userId !== userId) return;
+        sendSSEConfNotificationToClient(
+          notificationMsg.userId,
+          notificationMsg.videoConferenceId!,
+          notificationMsg.message!
+        );
+
+        // TODO: to send a push notification
+      });
+
     req.on("close", () => {
       clientResponseMap.delete(userId);
     });
@@ -127,19 +145,12 @@ export const getLiveNotifications = asyncHandler(
 
 const sendSSEConfNotificationToClient = async (
   userId: string,
-  videoConferenceId: string
+  videoConferenceId: string,
+  message: string
 ) => {
   const res = clientResponseMap.get(userId);
   if (!res) return;
-  const user = await User.findFirst({ where: { userId: userId } });
-  if (!user) return;
-
-  const isDoctor: boolean = user.role === "doctor";
-
-  const message = `Please join a call with ${
-    isDoctor ? "Dr." : "patient, " + user.firstName + " " + user.lastName
-  }`;
-
+ 
   res.write(
     `data: ${JSON.stringify({ message, userId, videoConferenceId })}\n\n`
   );
@@ -189,19 +200,23 @@ export const getLiveConferenceNotifications = asyncHandler(
     notification
       .listenConfNotificationEvent()
       .on("conferenceNotification", (notificationMsg: TConfNotification) => {
-        if (notificationMsg.message === "confconnected") {
-          sendPeerIdToClient(
-            notificationMsg.userId,
-            notificationMsg.videoConferenceId,
-            notificationMsg.peerId!,
-            notificationMsg.message
-          );
-          return;
-        }
-        if (notificationMsg.userId !== userId) return;
+        console.log("Executing in the conf notification listener...");
+        console.log("Executing in the conf notification listener...");
+        console.log("Executing in the conf notification listener...");
+        // if (notificationMsg.message === "confconnected") {
+        //   sendPeerIdToClient(
+        //     notificationMsg.userId,
+        //     notificationMsg.videoConferenceId,
+        //     notificationMsg.peerId!,
+        //     notificationMsg.message
+        //   );
+        //   return;
+        // }
+        // if (notificationMsg.userId !== userId) return;
         sendSSEConfNotificationToClient(
           notificationMsg.userId,
-          notificationMsg.videoConferenceId!
+          notificationMsg.videoConferenceId!,
+          notificationMsg.message!
         );
 
         // TODO: to send a push notification
