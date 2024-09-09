@@ -28,20 +28,33 @@ dotenv.config();
 const app = express();
 
 let url: string;
+let allowOrigins = [
+  "https://doc-ease.netlify.app",
+  "https://docease-v2.netlify.app",
+];
+
+const corsOptions = {
+  origin: function (origin: any, callback: any) {
+    if (allowOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
 if (process.env.NODE_ENV === "production") {
-  app.use(cors({ origin: process.env.FRONTEND_URL }));
-  // app.use(cors({ origin: "*" }));
-  url = process.env.FRONTEND_URL!;
+  app.use(cors(corsOptions));
 } else {
   app.use(cors());
-  url = "http://localhost:5173";
+  allowOrigins = ["http://localhost:5173"];
 }
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: url,
-    // origin: "*",
+    origin: allowOrigins,
+
     methods: ["GET", "POST"],
   },
   allowEIO3: true,
