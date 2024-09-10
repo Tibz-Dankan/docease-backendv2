@@ -31,6 +31,7 @@ let url: string;
 let allowOrigins = [
   "https://doc-ease.netlify.app",
   "https://docease-v2.netlify.app",
+  "https://keep-active-backend-v2.onrender.com",
 ];
 
 const corsOptions = {
