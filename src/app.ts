@@ -31,7 +31,6 @@ let url: string;
 let allowOrigins = [
   "https://doc-ease.netlify.app",
   "https://docease-v2.netlify.app",
-  "https://keep-active-backend-v2.onrender.com",
 ];
 
 const corsOptions = {
@@ -45,7 +44,8 @@ const corsOptions = {
 };
 
 if (process.env.NODE_ENV === "production") {
-  app.use(cors(corsOptions));
+  // app.use(cors(corsOptions));
+  app.use(cors({ origin: "*" }));
 } else {
   app.use(cors());
   allowOrigins = ["http://localhost:5173"];
