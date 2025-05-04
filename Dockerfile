@@ -1,5 +1,8 @@
 FROM node:22-alpine
 
+# Install OpenSSL and other dependencies required by Prisma
+RUN apk add --no-cache openssl libc6-compat
+
 RUN npm install -g pnpm
 
 WORKDIR /app
